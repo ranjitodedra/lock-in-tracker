@@ -7,7 +7,7 @@ import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { isAdmin } from "@/lib/auth/admin";
+import { isAdmin } from "@/lib/auth/admin-check";
 import { ADMIN_NAV_ITEM, NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
