@@ -7,7 +7,8 @@ import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { NAV_ITEMS } from "@/lib/nav-items";
+import { isAdmin } from "@/lib/auth/admin";
+import { ADMIN_NAV_ITEM, NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
 type NavLinksProps = {
@@ -18,11 +19,12 @@ type NavLinksProps = {
 
 export function NavLinks({ user, onNavigate, className }: NavLinksProps) {
   const pathname = usePathname();
+  const navItems = isAdmin(user) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <div className={cn("flex flex-1 flex-col", className)}>
       <nav className="flex flex-col gap-1" aria-label="Main navigation">
-        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+        {navItems.map(({ href, label, icon: Icon }) => {
           const isActive =
             pathname === href || pathname.startsWith(`${href}/`);
 

@@ -4,6 +4,7 @@ import {
   LayoutDashboard,
   PlusCircle,
   Settings,
+  Shield,
   type LucideIcon,
 } from "lucide-react";
 
@@ -20,3 +21,9 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/manifesto", label: "Manifesto", icon: Heart },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
+
+export const ADMIN_NAV_ITEM: NavItem = {
+  href: "/admin",
+  label: "Admin",
+  icon: Shield,
+};

@@ -1,4 +1,4 @@
-export const PROTECTED_PREFIXES = ["/dashboard", "/applications", "/settings"];
+export const PROTECTED_PREFIXES = ["/dashboard", "/applications", "/settings", "/admin"];
 
 export const AUTH_ROUTES = ["/login"];
 
