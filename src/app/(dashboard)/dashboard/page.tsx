@@ -1,11 +1,11 @@
 import { ApplicationsDashboard } from "@/components/dashboard/applications-dashboard";
 import { DashboardShell } from "@/components/layout/dashboard-shell";
-import { listApplications } from "@/lib/applications/queries";
+import { listApplicationsPage } from "@/lib/applications/queries";
 import { requireUser } from "@/lib/auth/session";
 
 export default async function DashboardPage() {
   const user = await requireUser();
-  const applications = await listApplications();
+  const { items, nextCursor, totalCount } = await listApplicationsPage();
 
   return (
     <DashboardShell
@@ -15,7 +15,11 @@ export default async function DashboardPage() {
       hideTitle
       user={user}
     >
-      <ApplicationsDashboard applications={applications} />
+      <ApplicationsDashboard
+        applications={items}
+        initialNextCursor={nextCursor}
+        totalCount={totalCount}
+      />
     </DashboardShell>
   );
 }

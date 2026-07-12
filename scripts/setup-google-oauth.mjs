@@ -14,12 +14,14 @@ import { readFileSync, existsSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import keytar from "keytar";
+import { getSupabaseProjectRef, loadEnvLocal } from "./load-env-local.mjs";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
-const projectRef = "qsdlrfwvlwgtxghqdkab";
+const env = { ...process.env, ...loadEnvLocal() };
+const projectRef = getSupabaseProjectRef(env);
 const callbackUrl = `https://${projectRef}.supabase.co/auth/v1/callback`;
-const jsOrigin = "http://localhost:3000";
+const jsOrigin = env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3000";
 
 function openGoogleCloudConsole(clientId) {
   if (process.platform !== "win32") {
@@ -40,20 +42,6 @@ function openGoogleCloudConsole(clientId) {
 
 function verifyGoogleOAuth() {
   execSync("node scripts/verify-google-oauth.mjs", { cwd: root, stdio: "inherit" });
-}
-
-function loadEnvLocal() {
-  const path = resolve(root, ".env.local");
-  if (!existsSync(path)) return {};
-  const env = {};
-  for (const line of readFileSync(path, "utf8").split(/\r?\n/)) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const eq = trimmed.indexOf("=");
-    if (eq === -1) continue;
-    env[trimmed.slice(0, eq)] = trimmed.slice(eq + 1);
-  }
-  return env;
 }
 
 async function getAccessToken() {
@@ -106,7 +94,6 @@ function printGoogleConsoleSteps() {
   console.log("   Or add credentials to .env.local and run npm run setup:google-oauth\n");
 }
 
-const env = { ...process.env, ...loadEnvLocal() };
 const clientId =
   process.argv[2]?.trim() || env.SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID?.trim();
 const clientSecret =

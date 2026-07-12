@@ -24,6 +24,7 @@ type AppHeaderProps = {
   showNewAction?: boolean;
   hideTitle?: boolean;
   user?: User;
+  showAdminNav?: boolean;
 };
 
 function userInitial(user: User): string {
@@ -38,6 +39,7 @@ export function AppHeader({
   showNewAction = true,
   hideTitle = false,
   user,
+  showAdminNav = false,
 }: AppHeaderProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const reducedMotion = useReducedMotion();
@@ -66,6 +68,7 @@ export function AppHeader({
                 <div className="flex min-h-0 flex-1 flex-col p-3">
                   <NavLinks
                     user={user}
+                    showAdminNav={showAdminNav}
                     onNavigate={() => setMobileOpen(false)}
                     className="min-h-0 flex-1"
                   />

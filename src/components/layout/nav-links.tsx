@@ -7,19 +7,19 @@ import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { isAdmin } from "@/lib/auth/admin-check";
 import { ADMIN_NAV_ITEM, NAV_ITEMS } from "@/lib/nav-items";
 import { cn } from "@/lib/utils";
 
 type NavLinksProps = {
   user: User;
+  showAdminNav?: boolean;
   onNavigate?: () => void;
   className?: string;
 };
 
-export function NavLinks({ user, onNavigate, className }: NavLinksProps) {
+export function NavLinks({ user, showAdminNav = false, onNavigate, className }: NavLinksProps) {
   const pathname = usePathname();
-  const navItems = isAdmin(user) ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
+  const navItems = showAdminNav ? [...NAV_ITEMS, ADMIN_NAV_ITEM] : NAV_ITEMS;
 
   return (
     <div className={cn("flex flex-1 flex-col", className)}>

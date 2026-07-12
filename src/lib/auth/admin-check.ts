@@ -1,7 +1,10 @@
 import type { User } from "@supabase/supabase-js";
 
-export const ADMIN_EMAIL = "ranjitodedra.dev@gmail.com";
+import { env } from "@/env";
 
 export function isAdmin(user: Pick<User, "email">): boolean {
-  return user.email?.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+  if (!env.ADMIN_EMAIL || !user.email) {
+    return false;
+  }
+  return user.email.toLowerCase() === env.ADMIN_EMAIL.toLowerCase();
 }

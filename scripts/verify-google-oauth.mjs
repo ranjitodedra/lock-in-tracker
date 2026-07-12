@@ -2,8 +2,13 @@
  * Verify Google OAuth no longer returns redirect_uri_mismatch.
  * Follows Supabase -> Google redirect and checks for Google error page.
  */
-const authorizeUrl =
-  "https://qsdlrfwvlwgtxghqdkab.supabase.co/auth/v1/authorize?provider=google&redirect_to=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fcallback";
+import { getSupabaseProjectRef, loadEnvLocal } from "./load-env-local.mjs";
+
+const env = { ...process.env, ...loadEnvLocal() };
+const projectRef = getSupabaseProjectRef(env);
+const appUrl = env.NEXT_PUBLIC_APP_URL?.trim() || "http://localhost:3000";
+const redirectTo = encodeURIComponent(`${appUrl}/auth/callback`);
+const authorizeUrl = `https://${projectRef}.supabase.co/auth/v1/authorize?provider=google&redirect_to=${redirectTo}`;
 
 const supabaseRes = await fetch(authorizeUrl, { redirect: "manual" });
 const googleUrl = supabaseRes.headers.get("location") ?? "";

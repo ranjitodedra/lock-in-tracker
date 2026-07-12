@@ -18,10 +18,7 @@ import {
   extractionUserMessage,
 } from "@/lib/extraction/prompt";
 import { parseExtractionResponse } from "@/lib/extraction/schema";
-import {
-  getRecentExtractionCount,
-  recordExtraction,
-} from "@/lib/extraction/usage";
+import { tryRecordExtraction } from "@/lib/extraction/usage";
 
 export async function POST(request: Request) {
   const user = await getAuthUser();
@@ -66,8 +63,11 @@ export async function POST(request: Request) {
   }
 
   try {
-    const recentCount = await getRecentExtractionCount(user.id, BURST_WINDOW_MS);
-    if (recentCount >= BURST_EXTRACTIONS_PER_MINUTE) {
+    const allowed = await tryRecordExtraction(
+      BURST_EXTRACTIONS_PER_MINUTE,
+      BURST_WINDOW_MS / 1000,
+    );
+    if (!allowed) {
       return NextResponse.json(
         {
           error: "rate_limited",
@@ -152,18 +152,6 @@ export async function POST(request: Request) {
       {
         error: "extraction_failed",
         message: "Could not parse extraction result. Try again.",
-      },
-      { status: 500 },
-    );
-  }
-
-  try {
-    await recordExtraction(user.id);
-  } catch {
-    return NextResponse.json(
-      {
-        error: "extraction_failed",
-        message: "Extraction succeeded but usage could not be recorded.",
       },
       { status: 500 },
     );

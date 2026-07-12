@@ -10,6 +10,10 @@ import {
   validateFormValues,
 } from "@/lib/applications/form";
 import { resolveAppliedFields } from "@/lib/applications/follow-up";
+import {
+  listApplicationsPage,
+  type ListApplicationsPageResult,
+} from "@/lib/applications/queries";
 import { requireUser } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import type { ApplicationRow, ApplicationStatus } from "@/types/application";
@@ -194,7 +198,6 @@ export async function patchApplication(
     return { error: error.message };
   }
 
-  revalidatePath("/dashboard");
   return { success: true, application: updated as ApplicationRow };
 }
 
@@ -210,4 +213,11 @@ export async function deleteApplication(id: string): Promise<ActionResult> {
 
   revalidatePath("/dashboard");
   return { success: true };
+}
+
+export async function loadApplicationsPage(
+  cursor?: string,
+): Promise<ListApplicationsPageResult> {
+  await requireUser();
+  return listApplicationsPage({ cursor });
 }

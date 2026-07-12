@@ -34,7 +34,7 @@ import { cn } from "@/lib/utils";
 import { useReducedMotion } from "@/lib/motion/use-reduced-motion";
 import {
   APPLICATION_STATUSES,
-  type ApplicationRow,
+  type ApplicationListRow,
   type ApplicationStatus,
 } from "@/types/application";
 
@@ -58,12 +58,12 @@ const COLUMNS: { key: SortKey; label: string }[] = [
 ];
 
 type ApplicationsTableProps = {
-  applications: ApplicationRow[];
+  applications: ApplicationListRow[];
   totalCount: number;
   sortKey: SortKey;
   sortDir: SortDir;
   onSort: (key: SortKey) => void;
-  onSelect: (application: ApplicationRow) => void;
+  onSelect: (application: ApplicationListRow) => void;
   onPatch: (id: string, patch: PatchApplicationInput) => void;
   patchingId: string | null;
   hasActiveFilters: boolean;

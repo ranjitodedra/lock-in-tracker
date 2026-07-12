@@ -69,19 +69,28 @@ export async function sendCodexMessage({
     stream: true,
   };
 
-  const response = await fetch(CODEX_RESPONSES_URL, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${tokens.access_token}`,
-      "chatgpt-account-id": userInfo.accountId,
-      "OpenAI-Beta": "responses=experimental",
-      originator: "codex_cli_rs",
-      session_id: randomUUID(),
-      Accept: "text/event-stream",
-    },
-    body: JSON.stringify(body),
-  });
+  let response: Response;
+  try {
+    response = await fetch(CODEX_RESPONSES_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${tokens.access_token}`,
+        "chatgpt-account-id": userInfo.accountId,
+        "OpenAI-Beta": "responses=experimental",
+        originator: "codex_cli_rs",
+        session_id: randomUUID(),
+        Accept: "text/event-stream",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(30_000),
+    });
+  } catch (err) {
+    if (err instanceof Error && err.name === "TimeoutError") {
+      throw new Error("Codex request timed out after 30s");
+    }
+    throw err;
+  }
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");

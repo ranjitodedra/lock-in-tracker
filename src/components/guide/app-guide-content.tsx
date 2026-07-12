@@ -92,7 +92,7 @@ export function AppGuideContent() {
         <p className="mt-2 text-sm text-muted-foreground">
           When you set an application status to{" "}
           <span className="font-medium text-foreground">Applied</span>, Lock-In
-          suggests a follow-up date about 7–10 business days later. You can
+          suggests a follow-up date 14 calendar days later. You can
           edit the date before or after saving.
         </p>
       </section>

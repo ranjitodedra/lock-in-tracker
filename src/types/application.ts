@@ -47,6 +47,27 @@ export type ApplicationInsert =
 export type ApplicationUpdate =
   Database["public"]["Tables"]["applications"]["Update"];
 
+export type ApplicationListRow = Pick<
+  ApplicationRow,
+  | "id"
+  | "user_id"
+  | "status"
+  | "company"
+  | "job_title"
+  | "location"
+  | "country"
+  | "work_mode"
+  | "employment_type"
+  | "salary"
+  | "application_deadline"
+  | "follow_up_date"
+  | "applied_at"
+  | "skills"
+  | "technologies"
+  | "created_at"
+  | "updated_at"
+>;
+
 export type ExtractionUsageRow =
   Database["public"]["Tables"]["extraction_usage"]["Row"];
 export type ExtractionUsageInsert =

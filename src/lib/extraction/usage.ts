@@ -1,31 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 
-export async function getRecentExtractionCount(
-  userId: string,
-  windowMs: number,
-): Promise<number> {
+export async function tryRecordExtraction(
+  limit: number,
+  windowSeconds: number,
+): Promise<boolean> {
   const supabase = await createClient();
-  const since = new Date(Date.now() - windowMs).toISOString();
-  const { count, error } = await supabase
-    .from("extraction_usage")
-    .select("*", { count: "exact", head: true })
-    .eq("user_id", userId)
-    .gte("created_at", since);
+  const { data, error } = await supabase.rpc("check_and_record_extraction", {
+    p_limit: limit,
+    p_window_seconds: windowSeconds,
+  });
 
   if (error) {
-    throw new Error("Failed to read extraction usage");
+    throw new Error("Failed to check extraction rate limit");
   }
 
-  return count ?? 0;
-}
-
-export async function recordExtraction(userId: string): Promise<void> {
-  const supabase = await createClient();
-  const { error } = await supabase
-    .from("extraction_usage")
-    .insert({ user_id: userId });
-
-  if (error) {
-    throw new Error("Failed to record extraction");
-  }
+  return data === true;
 }

@@ -43,7 +43,7 @@ Locked MVP boundaries and architecture decisions for the AI Job Application Trac
 | Token refresh | **Silent refresh** via server when possible; re-prompt Connect ChatGPT when refresh fails |
 | Consent copy | "Lock-In uses your ChatGPT subscription only to extract job fields from text you paste. We do not use it for general chat." |
 | Rate limits (app-side) | **20/min burst throttle** to prevent abuse (no monthly cap) |
-| Security | No token logging; RLS on all user data; tokens never in Supabase plaintext columns |
+| Security | No token logging; RLS on all user data; tokens in `codex_connections` (plaintext at rest — encryption planned) |
 | ToS disclaimer | Shown on connect screen and Settings |
 | Plan B | **Manual form always available**; BYOK OpenAI key deferred to v2 |
 
@@ -62,7 +62,7 @@ Locked MVP boundaries and architecture decisions for the AI Job Application Trac
 | Question | Decision |
 |---|---|
 | Default status | **Wishlist** |
-| Follow-up auto-set | **Applied only** (7–10 business days) |
+| Follow-up auto-set | **Applied only** (14 calendar days) |
 | Business days | **User locale calendar** |
 | MVP filters | Status, work mode, deadline range |
 | Search | **Company, job title, skills** (full-text on key fields) |
@@ -103,4 +103,4 @@ Locked MVP boundaries and architecture decisions for the AI Job Application Trac
 
 ## Build phases
 
-Follow order in `docs/FABLE_PROMPT.md`: Phase 0 → 9 incrementally.
+Follow order in `docs/dev/FABLE_PROMPT.md`: Phase 0 → 9 incrementally.

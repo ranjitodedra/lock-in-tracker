@@ -7,9 +7,10 @@ import { NavLinks } from "@/components/layout/nav-links";
 
 type AppSidebarProps = {
   user: User;
+  showAdminNav?: boolean;
 };
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, showAdminNav = false }: AppSidebarProps) {
   return (
     <aside className="hidden h-full w-64 shrink-0 flex-col bg-card md:flex">
       <div className="flex items-center gap-2 px-5 py-6">
@@ -25,7 +26,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
       </div>
 
       <div className="flex flex-1 flex-col px-3 pb-4">
-        <NavLinks user={user} />
+        <NavLinks user={user} showAdminNav={showAdminNav} />
       </div>
     </aside>
   );

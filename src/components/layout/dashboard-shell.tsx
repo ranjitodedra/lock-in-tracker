@@ -3,6 +3,7 @@ import type { User } from "@supabase/supabase-js";
 import { EmailVerificationBanner } from "@/components/auth/email-verification-banner";
 import { AppHeader } from "@/components/layout/app-header";
 import { AppSidebar } from "@/components/layout/app-sidebar";
+import { isAdmin } from "@/lib/auth/admin-check";
 
 type DashboardShellProps = {
   title: string;
@@ -21,6 +22,8 @@ export function DashboardShell({
   user,
   children,
 }: DashboardShellProps) {
+  const showAdminNav = isAdmin(user);
+
   return (
     <div className="flex h-dvh overflow-hidden bg-[#f2f2f2] dark:bg-background">
       <a
@@ -29,7 +32,7 @@ export function DashboardShell({
       >
         Skip to content
       </a>
-      <AppSidebar user={user} />
+      <AppSidebar user={user} showAdminNav={showAdminNav} />
       <div className="flex min-h-0 min-w-0 flex-1 flex-col">
         <EmailVerificationBanner user={user} />
         <AppHeader
@@ -38,6 +41,7 @@ export function DashboardShell({
           showNewAction={showNewAction}
           hideTitle={hideTitle}
           user={user}
+          showAdminNav={showAdminNav}
         />
         <main
           id="main-content"

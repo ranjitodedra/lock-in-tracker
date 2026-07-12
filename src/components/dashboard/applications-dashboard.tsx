@@ -13,12 +13,14 @@ import {
   ApplicationsToolbar,
   type DashboardFilters,
 } from "@/components/dashboard/applications-toolbar";
+import { Button } from "@/components/ui/button";
 import { useDashboardShortcuts } from "@/hooks/use-dashboard-shortcuts";
 import {
+  loadApplicationsPage,
   patchApplication,
   type PatchApplicationInput,
 } from "@/lib/applications/actions";
-import type { ApplicationRow } from "@/types/application";
+import type { ApplicationListRow } from "@/types/application";
 
 const DEFAULT_FILTERS: DashboardFilters = {
   search: "",
@@ -29,10 +31,12 @@ const DEFAULT_FILTERS: DashboardFilters = {
 };
 
 type ApplicationsDashboardProps = {
-  applications: ApplicationRow[];
+  applications: ApplicationListRow[];
+  initialNextCursor: string | null;
+  totalCount: number;
 };
 
-function matchesSearch(app: ApplicationRow, query: string): boolean {
+function matchesSearch(app: ApplicationListRow, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
 
@@ -44,7 +48,7 @@ function matchesSearch(app: ApplicationRow, query: string): boolean {
 }
 
 function matchesDeadlineRange(
-  app: ApplicationRow,
+  app: ApplicationListRow,
   from: string,
   to: string,
 ): boolean {
@@ -69,8 +73,8 @@ function matchesDeadlineRange(
 }
 
 function compareValues(
-  a: ApplicationRow,
-  b: ApplicationRow,
+  a: ApplicationListRow,
+  b: ApplicationListRow,
   key: SortKey,
 ): number {
   const av = a[key];
@@ -103,9 +107,13 @@ function hasActiveFilters(filters: DashboardFilters): boolean {
 
 export function ApplicationsDashboard({
   applications: initialApplications,
+  initialNextCursor,
+  totalCount,
 }: ApplicationsDashboardProps) {
   const router = useRouter();
   const [applications, setApplications] = useState(initialApplications);
+  const [nextCursor, setNextCursor] = useState(initialNextCursor);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [filters, setFilters] = useState<DashboardFilters>(DEFAULT_FILTERS);
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
@@ -127,12 +135,27 @@ export function ApplicationsDashboard({
 
       setApplications((prev) =>
         prev.map((app) =>
-          app.id === id ? result.application : app,
+          app.id === id ? { ...app, ...result.application } : app,
         ),
       );
     },
     [],
   );
+
+  const handleLoadMore = useCallback(async () => {
+    if (!nextCursor || loadingMore) return;
+
+    setLoadingMore(true);
+    try {
+      const page = await loadApplicationsPage(nextCursor);
+      setApplications((prev) => [...prev, ...page.items]);
+      setNextCursor(page.nextCursor);
+    } catch {
+      toast.error("Could not load more applications.");
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [loadingMore, nextCursor]);
 
   const filtered = useMemo(() => {
     let result = applications.filter(
@@ -160,7 +183,7 @@ export function ApplicationsDashboard({
     setSortDir("asc");
   }
 
-  function handleSelect(application: ApplicationRow) {
+  function handleSelect(application: ApplicationListRow) {
     router.push(`/applications/${application.id}`);
   }
 
@@ -169,34 +192,56 @@ export function ApplicationsDashboard({
   }
 
   const activeFilters = hasActiveFilters(filters);
+  const loadedAll = applications.length >= totalCount;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-      <ApplicationsToolbar
-        filters={filters}
-        totalCount={applications.length}
-        filteredCount={filtered.length}
-        onFiltersChange={setFilters}
-        onClearFilters={clearFilters}
-        hasActiveFilters={activeFilters}
-        searchInputRef={searchInputRef}
-      />
-
-      <div className="min-h-0 flex-1 overflow-auto">
-        <ApplicationsTable
-          applications={filtered}
-          totalCount={applications.length}
-          sortKey={sortKey}
-          sortDir={sortDir}
-          onSort={handleSort}
-          onSelect={handleSelect}
-          onPatch={handlePatch}
-          patchingId={patchingId}
-          hasActiveFilters={activeFilters}
+        <ApplicationsToolbar
+          filters={filters}
+          totalCount={totalCount}
+          filteredCount={filtered.length}
+          onFiltersChange={setFilters}
           onClearFilters={clearFilters}
+          hasActiveFilters={activeFilters}
+          searchInputRef={searchInputRef}
         />
-      </div>
+
+        {activeFilters && !loadedAll ? (
+          <p className="border-b border-border px-4 py-2 text-xs text-muted-foreground">
+            Search and filters apply to loaded applications (
+            {applications.length} of {totalCount}).
+          </p>
+        ) : null}
+
+        <div className="min-h-0 flex-1 overflow-auto">
+          <ApplicationsTable
+            applications={filtered}
+            totalCount={totalCount}
+            sortKey={sortKey}
+            sortDir={sortDir}
+            onSort={handleSort}
+            onSelect={handleSelect}
+            onPatch={handlePatch}
+            patchingId={patchingId}
+            hasActiveFilters={activeFilters}
+            onClearFilters={clearFilters}
+          />
+        </div>
+
+        {nextCursor ? (
+          <div className="border-t border-border px-4 py-3">
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              disabled={loadingMore}
+              onClick={handleLoadMore}
+            >
+              {loadingMore ? "Loading…" : "Load more"}
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );
