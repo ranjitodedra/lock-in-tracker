@@ -39,8 +39,54 @@ See [README.md](../README.md) for Supabase Auth configuration and migration step
 | `check:queries-cursor` | `tsx queries-cursor-check.ts` | Self-check for cursor encode/decode |
 | `setup:google-oauth` | `node scripts/setup-google-oauth.mjs` | Configure Google OAuth on Supabase |
 | `verify:google-oauth` | `node scripts/verify-google-oauth.mjs` | Verify Google redirect URI |
+| `sync:public` | `node scripts/sync-public.mjs` | Publish current private tree to public portfolio repo |
 
 There is no formal test framework (Jest/Vitest/Playwright). Verification is lint + typecheck + build + self-check scripts.
+
+---
+
+## Dual-repository publishing
+
+This project uses two GitHub repositories:
+
+| Remote | Repository | Purpose |
+|--------|------------|---------|
+| `origin` | `lock-in-tracker` (private) | Production — Vercel deploys from here |
+| `public` | `lock-in` (public) | Portfolio — clean history, no private commits |
+
+**Never** run `git push public main:main` from private history. The public repo is bootstrapped from an orphan branch and updated only via `sync:public`.
+
+### One-time bootstrap (already done if public repo has an initial commit)
+
+```powershell
+git remote add public https://github.com/ranjitodedra/lock-in.git
+git checkout main
+git checkout --orphan public-main
+git add -A
+git commit -m "Initial public release: Lock-In job application tracker"
+git push -u public public-main:main
+git checkout main
+```
+
+### Ongoing workflow
+
+```powershell
+# 1. Ship to production (private)
+git checkout main
+git merge my-feature
+git push origin main
+
+# 2. Publish to portfolio when ready (adds one linear commit on public)
+npm run sync:public
+```
+
+Optional source branch:
+
+```powershell
+node scripts/sync-public.mjs recruiter-ready
+```
+
+The sync script requires a clean working tree and the `public` git remote.
 
 ---
 

@@ -11,7 +11,8 @@
     "check:follow-up": "npx tsx src/lib/applications/follow-up.ts",
     "check:queries-cursor": "npx tsx src/lib/applications/queries-cursor-check.ts",
     "setup:google-oauth": "node scripts/setup-google-oauth.mjs",
-    "verify:google-oauth": "node scripts/verify-google-oauth.mjs"
+    "verify:google-oauth": "node scripts/verify-google-oauth.mjs",
+    "sync:public": "node scripts/sync-public.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

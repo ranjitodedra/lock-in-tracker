@@ -165,17 +165,28 @@ Lint failures (pre-existing, noted not fixed per no-behavior-change rule):
 
 - Copyright holder: Ranjit Odedra
 - Agent tooling (`.agents/`, `.cursor/`) kept in repo, documented in DEVELOPMENT.md only
-- Owner must add `ADMIN_EMAIL=ranjitodedra.dev@gmail.com` (or desired email) to `.env.local` for admin panel access
-- No git history rewrite performed
-- Remote not pushed; repository visibility unchanged
+- Owner must add `ADMIN_EMAIL` to `.env.local` for admin panel access
+- No git history rewrite performed on private repo
+
+---
+
+## Dual-repository setup
+
+| Remote | Repository | Role |
+|--------|------------|------|
+| `origin` | `github.com/ranjitodedra/lock-in-tracker` | Private production (Vercel) |
+| `public` | `github.com/ranjitodedra/lock-in` | Public portfolio (orphan history + linear sync commits) |
+
+- Portfolio prep merged to private `main` and pushed to `origin`
+- Public repo bootstrapped via orphan `public-main` branch (no private commit history)
+- Ongoing public updates: `npm run sync:public` (see [DEVELOPMENT.md](DEVELOPMENT.md))
 
 ---
 
 ## Before going public
 
-1. Review this branch locally: `git checkout recruiter-ready`
-2. Add `ADMIN_EMAIL` to `.env.local` and verify admin panel works
-3. Enable GitHub secret scanning and push protection
-4. Rotate Supabase service-role key and Google OAuth secret (precautionary)
-5. Push branch and review on GitHub rendered README (Mermaid diagram)
-6. Decide whether to merge `recruiter-ready` into `main` or make it the default branch
+1. Add `ADMIN_EMAIL` to `.env.local` and verify admin panel works
+2. Enable GitHub secret scanning and push protection on both repos
+3. Rotate Supabase service-role key and Google OAuth secret (precautionary)
+4. Review public repo README on GitHub (Mermaid diagram)
+5. Use `npm run sync:public` after future private releases when portfolio should update
